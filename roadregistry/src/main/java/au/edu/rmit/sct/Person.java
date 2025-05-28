@@ -1,5 +1,9 @@
 package au.edu.rmit.sct;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
@@ -9,11 +13,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-
-@SuppressWarnings ("unused")
 
 public class Person {
 
@@ -100,12 +104,6 @@ public class Person {
 
 
 
-
-
-
-
-
-
     public String addDemeritPoints(Date offenseDate, int points) {
         if (points < 1 || points > 6) return "Failed";
 
@@ -114,9 +112,9 @@ public class Person {
         int recentPoints = calculateRecentPoints(offenseDate, 2);
         int age = getAgeAtDate(offenseDate);
 
-        if (age < 21 && recentPoints > 6) {
+        if (age < 21 && recentPoints >= 6) {
             isSuspended = true;
-        } else if (age >= 21 && recentPoints > 12) {
+        } else if (age >= 21 && recentPoints >= 12) {
             isSuspended = true;
         }
 
@@ -185,5 +183,142 @@ public class Person {
     // Checks if person should be suspended
     public boolean getIsSuspended() {
         return isSuspended;
+    }
+
+
+
+
+
+
+
+
+
+    public boolean updatePersonalDetails(
+        String newPersonID,
+        String newFirstName,
+        String newLastName,
+        String newAddress,
+        String newBirthdate,
+        int currentAge
+    ) {
+        //Changing personal details will not affect their demerit points or the suspension status.
+        // All relevant conditions discussed for the addPerson function also need to be considered and checked in the updatePerson function.
+        //Condition 1: If a person is under 18, their address cannot be changed.
+        //Condition 2: If a person's birthday is going to be changed, then no other personal detail (i.e, person's ID, firstName, lastName, address) can be changed.
+        //Condition 3: If the first character/digit of a person's ID is an even number, then their ID cannot be changed.
+        //Instruction: If the Person's updated information meets the above conditions and any other conditions you may want to consider,
+        //the Person's information should be updated in the TXT file with the updated information, and the updatePersonalDetails function should return true.
+        //Otherwise, the Person's updated information should not be updated in the TXT file, and the updatePersonalDetails function should return false.
+
+        // Condition 2: If birthday is changing, no other field can change
+        boolean isBirthdayChanging = !this.birthdate.equals(newBirthdate);
+        boolean isOtherFieldChanging =
+            !this.personID.equals(newPersonID) ||
+            !this.firstName.equals(newFirstName) ||
+            !this.lastName.equals(newLastName) ||
+            !this.address.equals(newAddress);
+
+        if (isBirthdayChanging && isOtherFieldChanging) {
+            return false;
+        }
+
+        // Condition 1: If under 18, address cannot be changed
+        if (currentAge < 18 && !this.address.equals(newAddress)) {
+            return false;
+        }
+
+        // Condition 3: If first digit of personID is even, ID cannot be changed
+        char firstChar = this.personID.charAt(0);
+        if (Character.isDigit(firstChar) && ((firstChar - '0') % 2 == 0) && !this.personID.equals(newPersonID)) {
+            return false;
+        }
+
+        // validates newPersonID, newAddress, newBirthdate using addPerson rules
+        if (!isValidPersonID(newPersonID) || !isValidAddress(newAddress) || !isValidBirthdate(newBirthdate)) {
+            return false;
+        }
+
+        // read all persons from the file
+        List<String> lines = new ArrayList<>();
+        boolean found = false;
+        String oldLine = this.personID + "|" + this.firstName + "|" + this.lastName + "|" + this.address + "|" + this.birthdate;
+        String updatedLine = newPersonID + "|" + newFirstName + "|" + newLastName + "|" + newAddress + "|" + newBirthdate;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("persons.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // finds the line for this person
+                if (line.equals(oldLine) && !found) {
+                    lines.add(updatedLine);
+                    found = true;
+                } else {
+                    lines.add(line);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            // if file doesn't exist, treat it as not found
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (!found) {
+            return false;
+        }
+
+        // write the lines back to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("persons.txt"))) {
+            for (String l : lines) {
+                writer.write(l);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        // update
+        this.personID = newPersonID;
+        this.firstName = newFirstName;
+        this.lastName = newLastName;
+        this.address = newAddress;
+        this.birthdate = newBirthdate;
+
+        return true;
+    }
+
+//! helper methods
+    private boolean isValidPersonID(String id) {
+        // check length
+        if (id == null || id.length() != 10) return false;
+        // checks first two chars
+        if (!Character.isDigit(id.charAt(0)) || !Character.isDigit(id.charAt(1))) return false;
+        int d1 = id.charAt(0) - '0', d2 = id.charAt(1) - '0';
+        if (d1 < 2 || d1 > 9 || d2 < 2 || d2 > 9) return false;
+        // check atleast two special chars between 3 and 8
+        int specialCount = 0;
+        for (int i = 2; i < 8; i++) {
+            char c = id.charAt(i);
+            if (!Character.isLetterOrDigit(c)) specialCount++;
+        }
+        if (specialCount < 2) return false;
+        // check last two chars
+        if (!Character.isUpperCase(id.charAt(8)) || !Character.isUpperCase(id.charAt(9))) return false;
+        return true;
+    }
+
+    private boolean isValidAddress(String address) {
+        // format = Street Number|Street|City|State|Country, State must be Victoria
+        if (address == null) return false;
+        String[] parts = address.split("\\|");
+        if (parts.length != 5) return false;
+        if (!parts[3].equals("Victoria")) return false;
+        return true;
+    }
+
+    private boolean isValidBirthdate(String birthdate) {
+        if (birthdate == null) return false;
+        return birthdate.matches("\\d{2}-\\d{2}-\\d{4}");
     }
 }
