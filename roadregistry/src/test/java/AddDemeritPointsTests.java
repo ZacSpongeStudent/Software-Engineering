@@ -59,25 +59,25 @@ public class AddDemeritPointsTests {
 
 
     @Test
-        public void testPersonOver21IsSuspended() throws ParseException {
-            // Person over 21 isSuspended if points >= 12
-            Person p = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "01-01-1990");
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-            Date date = sdf.parse("25-05-2025");
+    public void testPersonOver21IsSuspended() throws ParseException {
+        // Person over 21 isSuspended if points >= 12
+        Person p = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "01-01-1990");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        Date date = sdf.parse("25-05-2025");
 
-            // Total demerits = 11
-            p.addDemeritPoints(date, 6); 
-            p.addDemeritPoints(date, 5);
-            assertFalse(p.getIsSuspended());
+        // Total demerits = 11
+        p.addDemeritPoints(date, 6); 
+        p.addDemeritPoints(date, 5);
+        assertFalse(p.getIsSuspended());
 
-            // Total demerits = 12
-            p.addDemeritPoints(date, 1); 
-            assertTrue(p.getIsSuspended());
+        // Total demerits = 12
+        p.addDemeritPoints(date, 1); 
+        assertTrue(p.getIsSuspended());
 
-            // Total demerits = 15
-            p.addDemeritPoints(date, 3); 
-            assertTrue(p.getIsSuspended());
-        }
+        // Total demerits = 15
+        p.addDemeritPoints(date, 3); 
+        assertTrue(p.getIsSuspended());
+    }
 
     @Test
     public void testDemeritPointsOlderThanTwoYearsNotCounted() throws ParseException {

@@ -44,7 +44,6 @@ public class UpdatePersonalDetailsTests {
         assertTrue(result, "Should allow all valid changes for person over 18 with odd first digit");
     }
 
-
     @Test
     public void testInvalidNewAddressFormat() {
         Person person = new Person("35s_d%&fAB", "John", "Smith", "32|Highland Street|Melbourne|Victoria|Australia", "15-11-2002");

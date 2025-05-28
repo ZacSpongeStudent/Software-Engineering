@@ -20,7 +20,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class Person {
-
     private String personID;
     private String firstName;
     private String lastName;
@@ -38,6 +37,12 @@ public class Person {
         this.birthdate = birthdate;
         this.isSuspended = false;
     }
+
+
+    /**
+     * A series of functions for the addPerson() test cases.
+     * @author s4096726
+     */
 
     //adds person data to a file if valid
     public boolean addPerson() {
@@ -104,6 +109,11 @@ public class Person {
 
 
 
+
+    /**
+     * A series of functions for the addDemeritPoints() test cases.
+     * @author s4003200
+     */
     public String addDemeritPoints(Date offenseDate, int points) {
         if (points < 1 || points > 6) return "Failed";
 
@@ -189,10 +199,10 @@ public class Person {
 
 
 
-
-
-
-
+    /**
+     * A series of functions for the updatePersonalDetails() test cases.
+     * @author s4058553
+     */
     public boolean updatePersonalDetails(
         String newPersonID,
         String newFirstName,
