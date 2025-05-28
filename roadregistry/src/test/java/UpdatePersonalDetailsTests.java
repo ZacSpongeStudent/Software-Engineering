@@ -32,7 +32,7 @@ public class UpdatePersonalDetailsTests {
     @Test
     public void testAllValidChangesOver18OddFirstDigit() throws IOException {
         // Set up the file with the initial person data
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("persons.txt"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("updatePersonalDetails_results.txt"))) {
             writer.write("35s_d%&fAB|John|Smith|32|Highland Street|Melbourne|Victoria|Australia|15-11-2002");
             writer.newLine();
         }

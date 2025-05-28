@@ -50,7 +50,7 @@ public class Person {
             return false;
         }
 
-        try (FileWriter writer = new FileWriter("people.txt", true)) { //try to write to file
+        try (FileWriter writer = new FileWriter("addPerson_results.txt", true)) { //try to write to file
             writer.write(this.toString() + "\n");
         } catch (IOException e) {
             return false;
@@ -128,7 +128,7 @@ public class Person {
             isSuspended = true;
         }
 
-        try (FileWriter writer = new FileWriter("demerit_records.txt", true)) {
+        try (FileWriter writer = new FileWriter("addDemeritPoints_results.txt", true)) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         String dateStr = sdf.format(offenseDate);
         writer.write(personID + "," + dateStr + "," + points + "\n");
@@ -254,7 +254,7 @@ public class Person {
         String oldLine = this.personID + "|" + this.firstName + "|" + this.lastName + "|" + this.address + "|" + this.birthdate;
         String updatedLine = newPersonID + "|" + newFirstName + "|" + newLastName + "|" + newAddress + "|" + newBirthdate;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("persons.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("updatePersonalDetails_results.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 // finds the line for this person
@@ -278,7 +278,7 @@ public class Person {
         }
 
         // write the lines back to the file
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("persons.txt"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("updatePersonalDetails_results.txt"))) {
             for (String l : lines) {
                 writer.write(l);
                 writer.newLine();
