@@ -2,11 +2,15 @@ package au.edu.rmit.sct;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Calendar;
 import java.util.Date;
 
 @SuppressWarnings ("unused")
@@ -91,5 +95,95 @@ public class Person {
     @Override
     public String toString() {
         return personID + "|" + firstName + "|" + lastName + "|" + address + "|" + birthdate;
+    }
+
+
+
+
+
+
+
+
+
+
+    public String addDemeritPoints(Date offenseDate, int points) {
+        if (points < 1 || points > 6) return "Failed";
+
+        demeritPoints.put(offenseDate, points);
+
+        int recentPoints = calculateRecentPoints(offenseDate, 2);
+        int age = getAgeAtDate(offenseDate);
+
+        if (age < 21 && recentPoints > 6) {
+            isSuspended = true;
+        } else if (age >= 21 && recentPoints > 12) {
+            isSuspended = true;
+        }
+
+        try (FileWriter writer = new FileWriter("demerit_records.txt", true)) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        String dateStr = sdf.format(offenseDate);
+        writer.write(personID + "," + dateStr + "," + points + "\n");
+        } catch (IOException e) {
+            return "Failed";
+        }
+
+        return "Success";
+    }
+
+    // Helper function for addDemeritPoints:
+    // Totals the demerit points found in hash map.
+
+    public int getTotalDemeritPoints() {
+        int total = 0;
+        for (int points : demeritPoints.values()) {
+            total += points;
+        }
+        return total;
+    }
+
+    // Helper function for addDemeritPoints:
+    // Totals the demerit points found in hash map within the last two years.
+
+    private int calculateRecentPoints(Date currentDate, int years) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(currentDate);
+        cal.add(Calendar.YEAR, -years);
+        Date thresholdDate = cal.getTime();
+
+        int sum = 0;
+        for (Map.Entry<Date, Integer> entry : demeritPoints.entrySet()) {
+            if (!entry.getKey().before(thresholdDate)) {
+                sum += entry.getValue();
+            }
+        }
+        return sum;
+    }
+
+    // Helper function for addDemeritPoints:
+    // Returns age of person based on date
+
+    private int getAgeAtDate(Date targetDate) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            Date birth = sdf.parse(this.birthdate);
+            Calendar birthCal = Calendar.getInstance();
+            Calendar targetCal = Calendar.getInstance();
+            birthCal.setTime(birth);
+            targetCal.setTime(targetDate);
+
+            int age = targetCal.get(Calendar.YEAR) - birthCal.get(Calendar.YEAR);
+            if (targetCal.get(Calendar.DAY_OF_YEAR) < birthCal.get(Calendar.DAY_OF_YEAR)) {
+                age--;
+            }
+            return age;
+        } catch (ParseException e) {
+            return 0; 
+        }
+    }
+
+    // Checks if person should be suspended
+    public boolean getIsSuspended() {
+        return isSuspended;
     }
 }

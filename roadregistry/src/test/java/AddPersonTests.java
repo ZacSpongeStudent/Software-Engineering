@@ -3,7 +3,7 @@ import org.junit.jupiter.api.Test;
 
 import au.edu.rmit.sct.Person;
 
-public class PersonTest {
+public class AddPersonTests {
 
     @Test
     public void testValidPerson() {
