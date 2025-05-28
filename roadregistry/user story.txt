@@ -1,0 +1,9 @@
+As a driver, I want to renew my vehicle registration online so that I can avoid visiting a service center in person.
+
+Acceptance Criteria:
+
+The system must allow the driver to view the status of their current registration.
+
+The system should provide a renewal option if the registration is due within 30 days or has expired.
+
+Upon successful renewal, the system must generate a digital confirmation receipt and email it to the driver.
