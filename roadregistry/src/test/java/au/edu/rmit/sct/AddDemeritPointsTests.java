@@ -1,10 +1,10 @@
+package au.edu.rmit.sct;
+
 import static org.junit.jupiter.api.Assertions.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import org.junit.jupiter.api.Test;
-
-import au.edu.rmit.sct.Person;
 
 import java.util.Date;
 

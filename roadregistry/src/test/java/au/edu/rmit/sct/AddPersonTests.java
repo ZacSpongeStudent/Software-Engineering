@@ -1,8 +1,7 @@
+package au.edu.rmit.sct;
+
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-
-import au.edu.rmit.sct.Person;
-
 public class AddPersonTests {
 
     @Test

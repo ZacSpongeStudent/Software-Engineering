@@ -1,11 +1,10 @@
+package au.edu.rmit.sct;
+
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import au.edu.rmit.sct.Person;
-
 public class UpdatePersonalDetailsTests {
 
     @Test
