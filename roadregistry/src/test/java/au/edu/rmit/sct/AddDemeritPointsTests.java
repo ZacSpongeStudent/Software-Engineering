@@ -12,9 +12,12 @@ public class AddDemeritPointsTests {
 
     @Test
     public void testdemeritPointsInRange() throws ParseException {
+        // Test adding demerit points over a range of valid and invalid values
         Person p = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-1999");
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         Date date = sdf.parse("25-05-2025");
+
+        assertEquals("Failed", p.addDemeritPoints(date, -3));
         assertEquals("Failed", p.addDemeritPoints(date, 0));
         assertEquals("Success", p.addDemeritPoints(date, 1));
         assertEquals("Success", p.addDemeritPoints(date, 4));
@@ -47,18 +50,22 @@ public class AddDemeritPointsTests {
         // Total demerits = 6
         Date date = sdf.parse("25-05-2025");
         p.addDemeritPoints(date, 3);
+
         date = sdf.parse("26-05-2025");
         p.addDemeritPoints(date, 3);
+
         assertTrue(p.getIsSuspended());
 
         // Total demerits = 9
         date = sdf.parse("27-05-2025");
         p.addDemeritPoints(date, 3);
+
         assertTrue(p.getIsSuspended());
 
         // Total demerits = 12
         date = sdf.parse("28-05-2025");
         p.addDemeritPoints(date, 3);
+
         assertTrue(p.getIsSuspended());
     }
 
@@ -72,18 +79,22 @@ public class AddDemeritPointsTests {
         // Total demerits = 11
         Date date = sdf.parse("25-05-2025");
         p.addDemeritPoints(date, 6); 
+
         date = sdf.parse("26-05-2025");
         p.addDemeritPoints(date, 5);
+
         assertFalse(p.getIsSuspended());
 
         // Total demerits = 12
         date = sdf.parse("27-05-2025");
         p.addDemeritPoints(date, 1); 
+
         assertTrue(p.getIsSuspended());
 
         // Total demerits = 15
         date = sdf.parse("28-05-2025");
         p.addDemeritPoints(date, 3); 
+
         assertTrue(p.getIsSuspended());
     }
 
@@ -94,7 +105,7 @@ public class AddDemeritPointsTests {
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
-        // Add points from more than 2 years ago (e.g., 01-01-2020)
+        // Add offense dates from more than 2 years ago (e.g., 01-01-2020)
         Date oldOffenseDate1 = sdf.parse("01-01-2020");
         Date oldOffenseDate2 = sdf.parse("01-01-2021");
         // Date within 2 years: 25-05-2025
