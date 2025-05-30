@@ -38,7 +38,6 @@ public class Person {
         this.isSuspended = false;
     }
 
-
     /**
      * A series of functions for the addPerson() test cases.
      * @author s4096726
@@ -300,7 +299,7 @@ public class Person {
         return true;
     }
 
-//! helper methods
+    // helper methods for validation
     private boolean isValidPersonID(String id) {
         // check length
         if (id == null || id.length() != 10) return false;
