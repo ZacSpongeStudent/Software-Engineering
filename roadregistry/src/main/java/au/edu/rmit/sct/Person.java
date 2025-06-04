@@ -114,15 +114,37 @@ public class Person {
      * @author s4003200
      */
     public String addDemeritPoints(Date offenseDate, int points) {
+        String dateStr = "";
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        try {
+            // Format offenseDate to string
+            sdf.setLenient(false); // Enable strict date validation
+            dateStr = sdf.format(offenseDate);
+
+            // Parse it back to ensure it's valid
+            Date reParsed = sdf.parse(dateStr);
+
+            // Confirm re-parsed date matches original
+            if (!reParsed.equals(offenseDate)) {
+                return "Failed";
+            }
+        } catch (ParseException e) {
+            return "Failed"; // Date format is invalid
+        }
+
+        //the points have to be between 1 and 6 inclusive
         if (points < 1 || points > 6) return "Failed";
 
+        //record the demerit points
         demeritPoints.put(offenseDate, points);
 
+        //get the total demerit points in the past 2 years from the current date
         Date currentDate = new Date();
-
         int recentPoints = calculateRecentPoints(currentDate, 2);
+
         int age = getAgeAtDate(currentDate);
 
+        //apply the suspension rules based on age and recent demerit points
         if (age < 21 && recentPoints >= 6) {
             isSuspended = true;
         } else if (age >= 21 && recentPoints >= 12) {
@@ -130,11 +152,11 @@ public class Person {
         }
 
         try (FileWriter writer = new FileWriter("addDemeritPoints_results.txt", true)) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        String dateStr = sdf.format(offenseDate);
-        writer.write(personID + "," + dateStr + "," + points + "\n");
+            //try to write the person's information and offense date to the text file
+            dateStr = sdf.format(offenseDate);
+            writer.write(personID + "," + dateStr + "," + points + "\n"); 
         } catch (IOException e) {
-            return "Failed";
+            return "Failed"; //return failed if the write fails
         }
 
         return "Success";
@@ -144,6 +166,7 @@ public class Person {
     // Totals the demerit points found in hash map.
 
     public int getTotalDemeritPoints() {
+        //gets the total sum of the demerit points for the driver
         int total = 0;
         for (int points : demeritPoints.values()) {
             total += points;
@@ -157,13 +180,16 @@ public class Person {
     private int calculateRecentPoints(Date currentDate, int years) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDate);
+
+        //Subtract the number of years to determine the threshold date
         cal.add(Calendar.YEAR, -years);
         Date thresholdDate = cal.getTime();
 
         int sum = 0;
         for (Map.Entry<Date, Integer> entry : demeritPoints.entrySet()) {
+            // Check if the offense date is on or after the threshold date
             if (!entry.getKey().before(thresholdDate)) {
-                sum += entry.getValue();
+                sum += entry.getValue(); //add to total
             }
         }
         return sum;
@@ -175,14 +201,15 @@ public class Person {
     private int getAgeAtDate(Date targetDate) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-            Date birth = sdf.parse(this.birthdate);
+            Date birth = sdf.parse(this.birthdate); //tries to parse the Date object into this format, if failed returns 0
+            //sets calender objects and time with the birthday and target date
             Calendar birthCal = Calendar.getInstance();
             Calendar targetCal = Calendar.getInstance();
             birthCal.setTime(birth);
             targetCal.setTime(targetDate);
 
-            int age = targetCal.get(Calendar.YEAR) - birthCal.get(Calendar.YEAR);
-            if (targetCal.get(Calendar.DAY_OF_YEAR) < birthCal.get(Calendar.DAY_OF_YEAR)) {
+            int age = targetCal.get(Calendar.YEAR) - birthCal.get(Calendar.YEAR); //simple maths to get the age by the difference of the two calendar objects
+            if (targetCal.get(Calendar.DAY_OF_YEAR) < birthCal.get(Calendar.DAY_OF_YEAR)) { //decrement age if the birthday hasn't been reached on the target year
                 age--;
             }
             return age;
@@ -191,7 +218,7 @@ public class Person {
         }
     }
 
-    // Checks if person should be suspended
+    // Simple getter for the suspended boolean
     public boolean getIsSuspended() {
         return isSuspended;
     }
@@ -321,15 +348,20 @@ public class Person {
 
     private boolean isValidAddress(String address) {
         // format = Street Number|Street|City|State|Country, State must be Victoria
-        if (address == null) return false;
-        String[] parts = address.split("\\|");
-        if (parts.length != 5) return false;
-        if (!parts[3].equals("Victoria")) return false;
+        if (address == null) return false; //return false if null
+        String[] parts = address.split("\\|"); //split with '|' as delimiter
+        if (parts.length != 5) return false; //return false if there aren't exactly 5 strings
+        if (!parts[3].equals("Victoria")) return false; //return false if the state isn't correct
         return true;
     }
 
     private boolean isValidBirthdate(String birthdate) {
-        if (birthdate == null) return false;
-        return birthdate.matches("\\d{2}-\\d{2}-\\d{4}");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-uuuu").withResolverStyle(ResolverStyle.STRICT); //real date check
+        try {
+            LocalDate.parse(birthdate, formatter); //attempt to parse date
+            return true;
+        } catch (DateTimeParseException e) {
+            return false; //can't parse the date
+        }
     }
 }
