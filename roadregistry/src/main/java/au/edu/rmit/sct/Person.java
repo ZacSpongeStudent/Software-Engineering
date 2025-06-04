@@ -35,12 +35,12 @@ public class Person {
      * @author s4096726
      */
 
-    //adds person data to a file if valid
-
+    //saves the person data in the default place, both are public because saving it to another file is used for testing
     public boolean addPerson() {
         return addPerson("addPerson_results.txt");
     }
 
+    //adds person data to a file if the inputs are valid
     public boolean addPerson(String filename) {
         if (!validatePersonID(personID) || !validateAddress(address) || !validateBirthdate(birthdate)) {
             return false;
@@ -252,15 +252,6 @@ public class Person {
         String newAddress,
         String newBirthdate
     ) {
-        //Changing personal details will not affect their demerit points or the suspension status.
-        // All relevant conditions discussed for the addPerson function also need to be considered and checked in the updatePerson function.
-        //Condition 1: If a person is under 18, their address cannot be changed.
-        //Condition 2: If a person's birthday is going to be changed, then no other personal detail (i.e, person's ID, firstName, lastName, address) can be changed.
-        //Condition 3: If the first character/digit of a person's ID is an even number, then their ID cannot be changed.
-        //Instruction: If the Person's updated information meets the above conditions and any other conditions you may want to consider,
-        //the Person's information should be updated in the TXT file with the updated information, and the updatePersonalDetails function should return true.
-        //Otherwise, the Person's updated information should not be updated in the TXT file, and the updatePersonalDetails function should return false.
-
         // Condition 2: If birthday is changing, no other field can change
         boolean isBirthdayChanging = !this.birthdate.equals(newBirthdate);
         boolean isOtherFieldChanging =
@@ -290,7 +281,7 @@ public class Person {
             return false;
         }
 
-        // read all persons from the file
+        // read all people from the file
         List<String> lines = new ArrayList<>();
         boolean found = false;
         String oldLine = this.toString();
