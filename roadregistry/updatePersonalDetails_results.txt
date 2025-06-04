@@ -1,1 +1,3 @@
-github tests go 2
+35s_d%&fAB|John|Smith|32|Highland Street|Melbourne|Victoria|Australia|15-11-2006
+35s_d%&fAB|John|Smith|32|Highland Street|Melbourne|Victoria|Australia|15-11-2004
+36s_d%&fAB|Jane|Doe|33|Main Street|Melbourne|Victoria|Australia|15-11-2002
