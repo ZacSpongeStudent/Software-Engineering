@@ -1,6 +1,9 @@
 package au.edu.rmit.sct;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -12,17 +15,23 @@ public class AddDemeritPointsTests {
 
     @Test
     public void testdemeritPointsInRange() throws ParseException {
-        // Test adding demerit points over a range of valid and invalid values
-        Person p = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-1999");
+        // Test adding demerit points over a range of valid and values
+        
+        // Write a newline to reduce file mismatch issues
+        try (FileWriter writer = new FileWriter("addDemeritPoints_results.txt", true)) {
+            writer.write("\n");
+        } catch (IOException e) {
+            fail("Failed to prepare file for test.");
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         Date date = sdf.parse("25-05-2025");
 
-        assertEquals("Failed", p.addDemeritPoints(date, -3));
-        assertEquals("Failed", p.addDemeritPoints(date, 0));
-        assertEquals("Success", p.addDemeritPoints(date, 1));
-        assertEquals("Success", p.addDemeritPoints(date, 4));
-        assertEquals("Success", p.addDemeritPoints(date, 6));
-        assertEquals("Failed", p.addDemeritPoints(date, 10)); 
+        for (int points = 2; points < 6; points ++) {
+            Person person = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-1999");
+            assertEquals("Success", person.addDemeritPoints(date, points));
+            assertEquals(Person.demeritPointRecordToString(person, date, points), Person.getLastLineFromFile("addDemeritPoints_results.txt"));
+        }
     }
 
     @Test

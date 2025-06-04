@@ -132,8 +132,8 @@ public class Person {
             return "Failed"; // Date format is invalid
         }
 
-        //the points have to be between 1 and 6 inclusive
-        if (points < 1 || points > 6) return "Failed";
+        //the points have to be between 1 and 6 exclusive
+        if (points <= 1 || points >= 6) return "Failed";
 
         //record the demerit points
         demeritPoints.put(offenseDate, points);
@@ -153,8 +153,7 @@ public class Person {
 
         try (FileWriter writer = new FileWriter("addDemeritPoints_results.txt", true)) {
             //try to write the person's information and offense date to the text file
-            dateStr = sdf.format(offenseDate);
-            writer.write(personID + "," + dateStr + "," + points + "\n"); 
+            writer.write(Person.demeritPointRecordToString(this, offenseDate, points) + "\n");
         } catch (IOException e) {
             return "Failed"; //return failed if the write fails
         }
@@ -163,8 +162,14 @@ public class Person {
     }
 
     // Helper function for addDemeritPoints:
-    // Totals the demerit points found in hash map.
 
+    //a to string method for the record
+    public static String demeritPointRecordToString(Person person, Date offenseDate, int points) {
+        String dateStr = new SimpleDateFormat("dd-MM-yyyy").format(offenseDate);
+        return person.personID + "," + dateStr + "," + points;
+    }
+
+    // Totals the demerit points found in hash map.
     public int getTotalDemeritPoints() {
         //gets the total sum of the demerit points for the driver
         int total = 0;
