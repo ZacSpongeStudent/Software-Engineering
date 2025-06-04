@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 public class UpdatePersonalDetailsTests {
+
+    
     // tests valid update scenario for adults with odd-numbered IDs
     @Test
     public void testAllValidChangesOver18OddFirstDigit() throws IOException {

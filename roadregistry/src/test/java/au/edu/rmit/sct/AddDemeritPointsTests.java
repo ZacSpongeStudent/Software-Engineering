@@ -13,6 +13,7 @@ import java.util.Date;
 
 public class AddDemeritPointsTests {
 
+    //helper method
     public static void clearDemeritPointsFile() {
         try (FileWriter writer = new FileWriter("addDemeritPoints_results.txt", false)) {
             writer.write(""); // overwrite with empty content
