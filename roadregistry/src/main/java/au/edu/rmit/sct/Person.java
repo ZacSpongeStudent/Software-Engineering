@@ -39,12 +39,17 @@ public class Person {
      */
 
     //adds person data to a file if valid
+
     public boolean addPerson() {
+        return addPerson("addPerson_results.txt");
+    }
+
+    public boolean addPerson(String filename) {
         if (!validatePersonID(personID) || !validateAddress(address) || !validateBirthdate(birthdate)) {
             return false;
         }
 
-        try (FileWriter writer = new FileWriter("addPerson_results.txt", true)) { //try to write to file
+        try (FileWriter writer = new FileWriter(filename, true)) { //try to write to file
             writer.write(this.toString() + "\n");
         } catch (IOException e) {
             return false;
@@ -231,8 +236,7 @@ public class Person {
         String newFirstName,
         String newLastName,
         String newAddress,
-        String newBirthdate,
-        int currentAge
+        String newBirthdate
     ) {
         //Changing personal details will not affect their demerit points or the suspension status.
         // All relevant conditions discussed for the addPerson function also need to be considered and checked in the updatePerson function.
@@ -255,6 +259,7 @@ public class Person {
             return false;
         }
 
+        int currentAge = getAgeAtDate(new Date());
         // Condition 1: If under 18, address cannot be changed
         if (currentAge < 18 && !this.address.equals(newAddress)) {
             return false;
@@ -274,8 +279,8 @@ public class Person {
         // read all persons from the file
         List<String> lines = new ArrayList<>();
         boolean found = false;
-        String oldLine = this.personID + "|" + this.firstName + "|" + this.lastName + "|" + this.address + "|" + this.birthdate;
-        String updatedLine = newPersonID + "|" + newFirstName + "|" + newLastName + "|" + newAddress + "|" + newBirthdate;
+        String oldLine = this.toString();
+        String updatedLine = new Person(newPersonID, newFirstName, newLastName, newAddress, newBirthdate).toString();
 
         try (BufferedReader reader = new BufferedReader(new FileReader("updatePersonalDetails_results.txt"))) {
             String line;
