@@ -27,7 +27,7 @@ public class AddDemeritPointsTests {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         Date date = sdf.parse("25-05-2025");
 
-        for (int points = 2; points < 6; points ++) {
+        for (int points = 1; points <= 6; points ++) {
             Person person = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-1999");
             assertEquals("Success", person.addDemeritPoints(date, points));
             assertEquals(Person.demeritPointRecordToString(person, date, points), Person.getLastLineFromFile("addDemeritPoints_results.txt"));

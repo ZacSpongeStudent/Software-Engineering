@@ -132,8 +132,8 @@ public class Person {
             return "Failed"; // Date format is invalid
         }
 
-        //the points have to be between 1 and 6 exclusive
-        if (points <= 1 || points >= 6) return "Failed";
+        //the points have to be between 1 and 6 inclusive
+        if (points < 1 || points > 6) return "Failed";
 
         //record the demerit points
         demeritPoints.put(offenseDate, points);
