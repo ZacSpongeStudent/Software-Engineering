@@ -7,9 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -20,7 +18,6 @@ public class Person {
     private String lastName;
     private String address;
     private String birthdate;
-    private HashMap<Date, Integer> demeritPoints = new HashMap<>();
     private boolean isSuspended;
 
     //constructs a person object
@@ -116,6 +113,8 @@ public class Person {
     public String addDemeritPoints(Date offenseDate, int points) {
         String dateStr = "";
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        
+        //check is valid demerit record
         try {
             // Format offenseDate to string
             sdf.setLenient(false); // Enable strict date validation
@@ -131,31 +130,26 @@ public class Person {
         } catch (ParseException e) {
             return "Failed"; // Date format is invalid
         }
-
         //the points have to be between 1 and 6 inclusive
         if (points < 1 || points > 6) return "Failed";
 
-        //record the demerit points
-        demeritPoints.put(offenseDate, points);
-
-        //get the total demerit points in the past 2 years from the current date
-        Date currentDate = new Date();
-        int recentPoints = calculateRecentPoints(currentDate, 2);
-
-        int age = getAgeAtDate(currentDate);
-
-        //apply the suspension rules based on age and recent demerit points
-        if (age < 21 && recentPoints >= 6) {
-            isSuspended = true;
-        } else if (age >= 21 && recentPoints >= 12) {
-            isSuspended = true;
-        }
-
+        //the record is valid, write to the file
         try (FileWriter writer = new FileWriter("addDemeritPoints_results.txt", true)) {
             //try to write the person's information and offense date to the text file
             writer.write(Person.demeritPointRecordToString(this, offenseDate, points) + "\n");
         } catch (IOException e) {
             return "Failed"; //return failed if the write fails
+        }
+
+        //get the total demerit points in the past 2 years from the current date
+        Date currentDate = new Date();
+        int recentPoints = calculateTotalPointsInPastYears(currentDate, 2);
+
+        int age = getAgeAtDate(currentDate);
+
+        //apply the suspension rules based on age and recent demerit points
+        if ((age < 21 && recentPoints > 6) || age >= 21 && recentPoints > 12) {
+            isSuspended = true;
         }
 
         return "Success";
@@ -169,34 +163,49 @@ public class Person {
         return person.personID + "," + dateStr + "," + points;
     }
 
-    // Totals the demerit points found in hash map.
+    // Totals the demerit points found in the text file within the last 200 years
     public int getTotalDemeritPoints() {
-        //gets the total sum of the demerit points for the driver
-        int total = 0;
-        for (int points : demeritPoints.values()) {
-            total += points;
-        }
-        return total;
+        return calculateTotalPointsInPastYears(new Date(), 200); // effectively gets all points
     }
 
-    // Helper function for addDemeritPoints:
-    // Totals the demerit points found in hash map within the last two years.
+    // Totals the demerit points found in the text file within the last x years.
+    private int calculateTotalPointsInPastYears(Date currentDate, int years) {
+        int sum = 0;
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
-    private int calculateRecentPoints(Date currentDate, int years) {
+        // Calculate the threshold date
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDate);
-
-        //Subtract the number of years to determine the threshold date
         cal.add(Calendar.YEAR, -years);
         Date thresholdDate = cal.getTime();
 
-        int sum = 0;
-        for (Map.Entry<Date, Integer> entry : demeritPoints.entrySet()) {
-            // Check if the offense date is on or after the threshold date
-            if (!entry.getKey().before(thresholdDate)) {
-                sum += entry.getValue(); //add to total
+        try (BufferedReader reader = new BufferedReader(new FileReader("addDemeritPoints_results.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length != 3) continue;
+
+                String id = parts[0].trim();
+                String dateStr = parts[1].trim();
+                String pointsStr = parts[2].trim();
+
+                if (!id.equals(this.personID)) continue;
+
+                try {
+                    Date offenseDate = sdf.parse(dateStr);
+                    int points = Integer.parseInt(pointsStr);
+
+                    if (!offenseDate.before(thresholdDate)) {
+                        sum += points;
+                    }
+                } catch (ParseException | NumberFormatException e) {
+                    // Skip lines with invalid date or points
+                }
             }
+        } catch (IOException e) {
+            // Optionally log error or handle file access failure
         }
+
         return sum;
     }
 

@@ -13,9 +13,18 @@ import java.util.Date;
 
 public class AddDemeritPointsTests {
 
+    public static void clearDemeritPointsFile() {
+        try (FileWriter writer = new FileWriter("addDemeritPoints_results.txt", false)) {
+            writer.write(""); // overwrite with empty content
+        } catch (IOException e) {
+            fail("Failed to clear addDemeritPoints_results.txt file.");
+        }
+    }
+
     @Test
-    public void testdemeritPointsInRange() throws ParseException {
-        // Test adding demerit points over a range of valid and values
+    public void testValidDemeritPoints() throws ParseException {
+        // Test adding demerit points over a range of valid values
+        clearDemeritPointsFile();
         
         // Write a newline to reduce file mismatch issues
         try (FileWriter writer = new FileWriter("addDemeritPoints_results.txt", true)) {
@@ -28,106 +37,119 @@ public class AddDemeritPointsTests {
         Date date = sdf.parse("25-05-2025");
 
         for (int points = 1; points <= 6; points ++) {
-            Person person = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-1999");
+            Person person = new Person("5" + points + "s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-1999");
             assertEquals("Success", person.addDemeritPoints(date, points));
             assertEquals(Person.demeritPointRecordToString(person, date, points), Person.getLastLineFromFile("addDemeritPoints_results.txt"));
         }
     }
 
     @Test
-    public void testPersonUnder21IsNotSuspended() throws ParseException {
+    public void testInvalidDemeritPoints() throws ParseException {
+        // Test adding demerit points over a range of valid values
+        clearDemeritPointsFile();
+        
+        // Write a newline to reduce file mismatch issues
+        try (FileWriter writer = new FileWriter("addDemeritPoints_results.txt", true)) {
+            writer.write("\n");
+        } catch (IOException e) {
+            fail("Failed to prepare file for test.");
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        Date date = sdf.parse("25-05-2025");
+
+        Person person = new Person("51s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-1999");
+        assertEquals("Failed", person.addDemeritPoints(date, 0));
+
+        person = new Person("52s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-1999");
+        assertEquals("Failed", person.addDemeritPoints(date, 7));
+
+        person = new Person("52s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-1999");
+        assertEquals("Failed", person.addDemeritPoints(date, -7));
+
+        assertEquals("", Person.getLastLineFromFile("addDemeritPoints_results.txt")); 
+    }
+
+    @Test
+    public void testSuspensionIfDoesNotExceedAllottedPoints() throws ParseException {
+        // Person under 21 should be suspended if points is more than 6
+        clearDemeritPointsFile();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        Date date = sdf.parse("25-05-2025");
+
         // Person under 21 is not suspended if points < 6
-        Person p = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-2005");
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-    
+        Person personUnder21 = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-2006");
+        //set the points to 5, check to make sure this works
+        assertEquals("Success", personUnder21.addDemeritPoints(date, 5));
+        assertEquals(5, personUnder21.getTotalDemeritPoints());
 
-        // Total demerits = 5
-        Date date = sdf.parse("25-05-2025");
-        p.addDemeritPoints(date, 2);
-        date = sdf.parse("26-05-2025");
-        p.addDemeritPoints(date, 3);
-        assertFalse(p.getIsSuspended());
+        personUnder21.addDemeritPoints(date, 1);
+        assertFalse(personUnder21.getIsSuspended());
+
+        personUnder21.addDemeritPoints(date, 1);
+        assertTrue(personUnder21.getIsSuspended());
+
+        // Person over 21 is not suspended if points < 12
+        Person personOver21 = new Person("57s_d%&fAB", "Jane", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-2000");
+        //set the points to 11, check to make sure this works
+        assertEquals("Success", personOver21.addDemeritPoints(date, 6));
+        assertEquals("Success", personOver21.addDemeritPoints(date, 5));
+        assertEquals(11, personOver21.getTotalDemeritPoints());
+
+        personOver21.addDemeritPoints(date, 1);
+        assertFalse(personOver21.getIsSuspended());
+
+        personOver21.addDemeritPoints(date, 1);
+        assertTrue(personOver21.getIsSuspended());
     }
 
-
     @Test
-    public void testPersonUnder21IsSuspended() throws ParseException {
-        // Person under 21 isSuspended if points >= 6
-        Person p = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-2005");
+    public void testSuspensionIfExceedsAllottedPoints() throws ParseException {
+        // Person under 21 should be suspended if points is more than 6
+        clearDemeritPointsFile();
+
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-
-        // Total demerits = 6
         Date date = sdf.parse("25-05-2025");
-        p.addDemeritPoints(date, 3);
 
-        date = sdf.parse("26-05-2025");
-        p.addDemeritPoints(date, 3);
+        // Person under 21 is not suspended if points < 6
+        Person personUnder21 = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-2006");
+        //set the points to 6, check to make sure this works
+        assertEquals("Success", personUnder21.addDemeritPoints(date, 6));
+        assertEquals(6, personUnder21.getTotalDemeritPoints());
 
-        assertTrue(p.getIsSuspended());
+        personUnder21.addDemeritPoints(date, 1);
+        assertTrue(personUnder21.getIsSuspended());
 
-        // Total demerits = 9
-        date = sdf.parse("27-05-2025");
-        p.addDemeritPoints(date, 3);
+        // Person over 21 is not suspended if points < 12
+        Person personOver21 = new Person("57s_d%&fAB", "Jane", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-2000");
+        //set the points to 11, check to make sure this works
+        assertEquals("Success", personOver21.addDemeritPoints(date, 6));
+        assertEquals("Success", personOver21.addDemeritPoints(date, 6));
+        assertEquals(12, personOver21.getTotalDemeritPoints());
 
-        assertTrue(p.getIsSuspended());
-
-        // Total demerits = 12
-        date = sdf.parse("28-05-2025");
-        p.addDemeritPoints(date, 3);
-
-        assertTrue(p.getIsSuspended());
-    }
-
-
-    @Test
-    public void testPersonOver21IsSuspended() throws ParseException {
-        // Person over 21 isSuspended if points >= 12
-        Person p = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "01-01-1990");
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-
-        // Total demerits = 11
-        Date date = sdf.parse("25-05-2025");
-        p.addDemeritPoints(date, 6); 
-
-        date = sdf.parse("26-05-2025");
-        p.addDemeritPoints(date, 5);
-
-        assertFalse(p.getIsSuspended());
-
-        // Total demerits = 12
-        date = sdf.parse("27-05-2025");
-        p.addDemeritPoints(date, 1); 
-
-        assertTrue(p.getIsSuspended());
-
-        // Total demerits = 15
-        date = sdf.parse("28-05-2025");
-        p.addDemeritPoints(date, 3); 
-
-        assertTrue(p.getIsSuspended());
+        personOver21.addDemeritPoints(date, 1);
+        assertTrue(personOver21.getIsSuspended());
     }
 
     @Test
     public void testDemeritPointsOlderThanTwoYearsNotCounted() throws ParseException {
-        // Person is not suspended if offenses are not within 2 years
-        Person p = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "01-01-2000");
+        // Person under 21 should be suspended if points is more than 6
+        clearDemeritPointsFile();
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
-        // Add offense dates from more than 2 years ago (e.g., 01-01-2020)
-        Date oldOffenseDate1 = sdf.parse("01-01-2020");
-        Date oldOffenseDate2 = sdf.parse("01-01-2021");
-        // Date within 2 years: 25-05-2025
-        Date recentOffenseDate = sdf.parse("25-05-2025");
+        // Person under 21 is not suspended if points < 6
+        Person person = new Person("56s_d%&fAB", "John", "Doe", "123|Street St|Melbourne|Victoria|Australia", "1-1-2006");
+        //set the points to 6, check to make sure this works
+        assertEquals("Success", person.addDemeritPoints(sdf.parse("25-05-2025"), 6));
+        assertEquals(6, person.getTotalDemeritPoints());
 
-        // Total demerits = 12 (Not within 2 years)
-        p.addDemeritPoints(oldOffenseDate1, 6); 
-        p.addDemeritPoints(oldOffenseDate2, 6); 
+        assertFalse(person.getIsSuspended());
+        
+        person.addDemeritPoints(sdf.parse("25-05-2020"), 1);
+        person.addDemeritPoints(sdf.parse("13-03-1969"), 5);
 
-        // Add 5 demerits (within 2 years)
-        p.addDemeritPoints(recentOffenseDate, 5); 
-
-        assertFalse(p.getIsSuspended());
+        assertFalse(person.getIsSuspended());
     }
-
 }
