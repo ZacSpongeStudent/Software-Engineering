@@ -359,4 +359,18 @@ public class Person {
             return false; //can't parse the date
         }
     }
+
+    //testing function
+    public static String getLastLineFromFile(String filename) {
+        String lastLine = null;
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lastLine = line;
+            }
+        } catch (IOException e) {
+            return "Failed to read from file.";
+        }
+        return lastLine;
+    }
 }

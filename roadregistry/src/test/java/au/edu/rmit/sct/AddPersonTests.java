@@ -2,28 +2,11 @@ package au.edu.rmit.sct;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 public class AddPersonTests {
-    //testing function
-    private String getLastLineFromFile(String filename) {
-        String lastLine = null;
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lastLine = line;
-            }
-        } catch (IOException e) {
-            fail("Failed to read from file.");
-            return null;
-        }
-        return lastLine;
-    }
-
     @Test
     public void testValidPerson() {
         // All inputs are valid
@@ -40,13 +23,13 @@ public class AddPersonTests {
 
         //add all people and check if the last line is equal to the person information
         assertTrue(p1.addPerson());
-        assertEquals(p1.toString(), getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(p1.toString(), Person.getLastLineFromFile("addPerson_results.txt"));
 
         assertTrue(p2.addPerson());
-        assertEquals(p2.toString(), getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(p2.toString(), Person.getLastLineFromFile("addPerson_results.txt"));
 
         assertTrue(p3.addPerson());
-        assertEquals(p3.toString(), getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(p3.toString(), Person.getLastLineFromFile("addPerson_results.txt"));
     }
 
     @Test
@@ -56,16 +39,16 @@ public class AddPersonTests {
         Person p2 = new Person("67ghijklMN", "Emily", "Turner", "34|Bourke St|Melbourne|Victoria|Australia", "23-08-1989");
         Person p3 = new Person("23mnopqrST", "Frank", "Hill", "21|River Rd|Melbourne|Victoria|Australia", "09-09-1993");
 
-        String lastLineFromFile = getLastLineFromFile("addPerson_results.txt");
+        String lastLineFromFile = Person.getLastLineFromFile("addPerson_results.txt");
 
         assertFalse(p1.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
 
         assertFalse(p2.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
 
         assertFalse(p3.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
     }
 
     @Test
@@ -75,16 +58,16 @@ public class AddPersonTests {
         Person p2 = new Person("67s&*B", "Henry", "Green", "12|Park Rd|Melbourne|Victoria|Australia", "02-06-1988");
         Person p3 = new Person("78$%fT", "Ivy", "White", "73|Ocean Dr|Melbourne|Victoria|Australia", "29-01-2001");
 
-        String lastLineFromFile = getLastLineFromFile("addPerson_results.txt");
+        String lastLineFromFile = Person.getLastLineFromFile("addPerson_results.txt");
 
         assertFalse(p1.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
 
         assertFalse(p2.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
 
         assertFalse(p3.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
     }
 
     @Test
@@ -94,16 +77,16 @@ public class AddPersonTests {
         Person p2 = new Person("56s_d&f*AB", "Kate", "Moss", "22|High St|Melbourne|Queensland|Australia", "15-04-1987");
         Person p3 = new Person("56s_d&f*AB", "Leo", "King", "33|Bridge Rd|Melbourne|Tasmania|Australia", "08-08-1998");
           
-        String lastLineFromFile = getLastLineFromFile("addPerson_results.txt");
+        String lastLineFromFile = Person.getLastLineFromFile("addPerson_results.txt");
 
         assertFalse(p1.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
 
         assertFalse(p2.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
 
         assertFalse(p3.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
     }
 
     @Test
@@ -113,16 +96,16 @@ public class AddPersonTests {
         Person p2 = new Person("56s_d&f*AB", "Noah", "Wright", "90|Station Rd|Melbourne|Victoria|Australia", "12.11.1980");
         Person p3 = new Person("56s_d&f*AB", "Olivia", "Brown", "67|Sunshine Blvd|Melbourne|Victoria|Australia", "March 5, 1993");
         
-        String lastLineFromFile = getLastLineFromFile("addPerson_results.txt");
+        String lastLineFromFile = Person.getLastLineFromFile("addPerson_results.txt");
 
         assertFalse(p1.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
 
         assertFalse(p2.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
 
         assertFalse(p3.addPerson());
-        assertEquals(lastLineFromFile, getLastLineFromFile("addPerson_results.txt"));
+        assertEquals(lastLineFromFile, Person.getLastLineFromFile("addPerson_results.txt"));
     }
 
 }
